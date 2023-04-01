@@ -64,20 +64,20 @@ class ToTensor(object):
 
 
 class InferenceHelper:
-    def __init__(self, dataset='nyu', device='cuda:0'):
+    def __init__(self, dataset='nyu', device='cuda:0', _pretrained_path='./models/AdaBins_nyu.pt', unet_model=None):
         self.toTensor = ToTensor()
         self.device = device
         if dataset == 'nyu':
             self.min_depth = 1e-3
             self.max_depth = 10
             self.saving_factor = 1000  # used to save in 16 bit
-            model = UnetAdaptiveBins.build(n_bins=256, min_val=self.min_depth, max_val=self.max_depth)
-            pretrained_path = "./pretrained/AdaBins_nyu.pt"
+            model = UnetAdaptiveBins.build(n_bins=256, _basemodel=unet_model, min_val=self.min_depth, max_val=self.max_depth)
+            pretrained_path = _pretrained_path# "./pretrained/AdaBins_nyu.pt"
         elif dataset == 'kitti':
             self.min_depth = 1e-3
             self.max_depth = 80
             self.saving_factor = 256
-            model = UnetAdaptiveBins.build(n_bins=256, min_val=self.min_depth, max_val=self.max_depth)
+            model = UnetAdaptiveBins.build(n_bins=256, _basemodel=unet_model, min_val=self.min_depth, max_val=self.max_depth)
             pretrained_path = "./pretrained/AdaBins_kitti.pt"
         else:
             raise ValueError("dataset can be either 'nyu' or 'kitti' but got {}".format(dataset))

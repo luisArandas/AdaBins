@@ -26,15 +26,12 @@ class DecoderBN(nn.Module):
     def __init__(self, num_features=2048, num_classes=1, bottleneck_features=2048):
         super(DecoderBN, self).__init__()
         features = int(num_features)
-
         self.conv2 = nn.Conv2d(bottleneck_features, features, kernel_size=1, stride=1, padding=1)
-
         self.up1 = UpSampleBN(skip_input=features // 1 + 112 + 64, output_features=features // 2)
         self.up2 = UpSampleBN(skip_input=features // 2 + 40 + 24, output_features=features // 4)
         self.up3 = UpSampleBN(skip_input=features // 4 + 24 + 16, output_features=features // 8)
         self.up4 = UpSampleBN(skip_input=features // 8 + 16 + 8, output_features=features // 16)
-
-        #         self.up5 = UpSample(skip_input=features // 16 + 3, output_features=features//16)
+        # self.up5 = UpSample(skip_input=features // 16 + 3, output_features=features//16)
         self.conv3 = nn.Conv2d(features // 16, num_classes, kernel_size=3, stride=1, padding=1)
         # self.act_out = nn.Softmax(dim=1) if output_activation == 'softmax' else nn.Identity()
 
@@ -119,12 +116,13 @@ class UnetAdaptiveBins(nn.Module):
             yield from m.parameters()
 
     @classmethod
-    def build(cls, n_bins, **kwargs):
+    def build(cls, n_bins, _basemodel, **kwargs):
         basemodel_name = 'tf_efficientnet_b5_ap'
 
-        print('Loading base model ()...'.format(basemodel_name), end='')
-        basemodel = torch.hub.load('rwightman/gen-efficientnet-pytorch', basemodel_name, pretrained=True)
-        print('Done.')
+        print(f'Loading base model ({basemodel_name})...')
+        # CHANGED -> removed from torch.hub and go to previous class locally
+        basemodel = _basemodel # torch.hub.load('rwightman/gen-efficientnet-pytorch', basemodel_name, pretrained=True)
+        #print('Done., got model: ', basemodel)
 
         # Remove last layer
         print('Removing last two layers (global_pool & classifier).')
